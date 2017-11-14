@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testLibrary", "testLibrary\testLibrary.vcxproj", "{673C6F71-EEFC-4FD0-8CC9-15F7F8B1F2DA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testODBCApplication", "testODBCApplication\testODBCApplication.vcxproj", "{4FAF72BB-77DF-4299-99AE-98F322C9BA46}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{673C6F71-EEFC-4FD0-8CC9-15F7F8B1F2DA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{673C6F71-EEFC-4FD0-8CC9-15F7F8B1F2DA}.Debug|Win32.Build.0 = Debug|Win32
+		{673C6F71-EEFC-4FD0-8CC9-15F7F8B1F2DA}.Release|Win32.ActiveCfg = Release|Win32
+		{673C6F71-EEFC-4FD0-8CC9-15F7F8B1F2DA}.Release|Win32.Build.0 = Release|Win32
+		{4FAF72BB-77DF-4299-99AE-98F322C9BA46}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4FAF72BB-77DF-4299-99AE-98F322C9BA46}.Debug|Win32.Build.0 = Debug|Win32
+		{4FAF72BB-77DF-4299-99AE-98F322C9BA46}.Release|Win32.ActiveCfg = Release|Win32
+		{4FAF72BB-77DF-4299-99AE-98F322C9BA46}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
