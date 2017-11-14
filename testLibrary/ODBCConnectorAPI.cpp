@@ -44,6 +44,7 @@ int RDBC_Connection_CopyTable(HANDLE sourceConnection, HANDLE targetConnection, 
 			Statement statement = Statement(targetConnectionPointer->getHandleStatement(), createQuery->getQueryString());
 			statement.executeUpdate();
 
+			sourceConnectionPointer->setBulkFetch(rowsAtATime);
 			bool hasError = selectStarAndInsertIntoTarget(sourceConnectionPointer, targetConnectionPointer, table.getName(), createQuery->getTableName(), rowsAtATime, columns, columnIndexes);
 			/**
 			Query selectQuery = Query(SELECT_STAR, table.getName(), "");
@@ -203,7 +204,7 @@ int RDBC_Table_ReadAllColumns(HANDLE connection, int tableIndex, char colNames[]
 	return numColumns;
 }
 
-/**
+
 bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 	if (isValidHandle(connection)){
 		Connection * connectionPointer = (Connection *)connection;
@@ -213,7 +214,7 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 	}
 	return false;
 }
-*/
+
 
 	// Returns any errors recorded during the datasource connection
 //	Error RDBC_Connection_GetError()
@@ -313,6 +314,7 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 		return columns;
 	}
 
+	/*
 	bool insertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
 		Query insertQuery = Query(INSERT, targetTable, " VALUES ", targetConnectionPointer->getIdentifierQuote());
 		insertQuery.addColumnsToInsertQuery(columns);
@@ -326,6 +328,25 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 					currentRows.push_back(resultSet->getCurrentRow());
 				}
 			}
+			if (currentRows.size() > 0) {
+				insertQuery.addListOfValuesToInsertQuery(currentRows, columnIndexes);
+				Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());
+				bool currentError = statement.executeUpdate();
+				if (currentError)
+					hasError = true;
+			}
+		}
+		return hasError;
+	}*/
+
+	bool insertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
+		Query insertQuery = Query(INSERT, targetTable, " VALUES ", targetConnectionPointer->getIdentifierQuote());
+		insertQuery.addColumnsToInsertQuery(columns);
+		bool moreRows = true;
+		bool hasError = false;
+		while (moreRows){
+			vector<vector<string>> currentRows = resultSet->getNRows(rowsAtATime);
+			moreRows = currentRows.size() == rowsAtATime;
 			if (currentRows.size() > 0) {
 				insertQuery.addListOfValuesToInsertQuery(currentRows, columnIndexes);
 				Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());

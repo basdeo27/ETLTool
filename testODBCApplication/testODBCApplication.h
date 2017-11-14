@@ -45,7 +45,7 @@ extern "C" {
 
 	typedef ODBCCONNECTOR_API int(*ReadTablesForCatalogAndSchema)(HANDLE, int, int, char(*)[256]);
 
-	//typedef ODBCCONNECTOR_API bool(*SetBulkFetch)(HANDLE, int);
+	typedef ODBCCONNECTOR_API bool(*SetBulkFetch)(HANDLE, int);
 
 }
 
@@ -89,7 +89,7 @@ ReadAllSchemas ReadAllSchemasPtr = NULL;
 
 ReadTablesForCatalogAndSchema ReadTablesForCatalogAndSchemaPtr = NULL;
 
-//SetBulkFetch SetBulkFetchPtr = NULL;
+SetBulkFetch SetBulkFetchPtr = NULL;
 
 
 // Returns any errors recorded during the datasource connection

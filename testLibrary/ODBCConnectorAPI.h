@@ -59,7 +59,7 @@ extern "C" ODBCCONNECTOR_API int RDBC_Connection_ReadAllTables(HANDLE connection
 
 extern "C" ODBCCONNECTOR_API int RDBC_Connection_ReadTablesForCatalogAndSchema(HANDLE connection, int catalogIndex, int schemaIndex, char colNames[][256]);
 
-//extern "C" ODBCCONNECTOR_API bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch);
+extern "C" ODBCCONNECTOR_API bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch);
 
 extern "C" ODBCCONNECTOR_API int RDBC_Table_ReadAllColumns(HANDLE connection, int tableIndex, char colNames[][256]);
 

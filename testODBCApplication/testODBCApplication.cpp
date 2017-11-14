@@ -123,6 +123,9 @@ using namespace std;
 		ReadAllSchemasPtr = (ReadAllSchemas) GetProcAddress(dllHandle, "RDBC_Connection_ReadAllSchemas");
 		ReadTablesForCatalogAndSchemaPtr = (ReadTablesForCatalogAndSchema)GetProcAddress(dllHandle, "RDBC_Connection_ReadTablesForCatalogAndSchema");
 
+
+		SetBulkFetchPtr = (SetBulkFetch)GetProcAddress(dllHandle, "RDBC_Connection_SetBulkFetch");
+
 	}
 
 	int _tmain(int argc, _TCHAR* argv[])
@@ -217,7 +220,7 @@ using namespace std;
 					cin.clear();
 					cin.ignore(INT_MAX, '\n');
 				}
-
+				
 				inputAnswer = "";
 				cout << "Would you like to create a new table or append to an existing table?" << endl;
 				cout << "Press y for append. Any other string will create a new table." << endl;

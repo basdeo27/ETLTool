@@ -151,9 +151,11 @@ static const int BUFFER_LENGTH = 1024;
 
 	struct DataBindingArray {
 		SQLSMALLINT TargetType;
-		shared_ptr<char> TargetValuePtr;
+		//shared_ptr<char> TargetValuePtr;
+		char* TargetValuePtr;
 		SQLINTEGER BufferLength;
-		shared_ptr<SQLLEN> StrLen_or_Ind;
+		//shared_ptr<SQLLEN> StrLen_or_Ind;
+		SQLLEN* StrLen_or_Ind;
 	};
 
 
