@@ -144,6 +144,30 @@ using namespace std;
 		return batchRows;
 	} 
 
+	bool ResultSet::getNRows(vector<vector<string>>* batchRows){
+		int size = batchRows->size();
+		int retCode = SQLFetch(handleStatement->getHandle());
+		if (retCode != 0){
+			batchRows->resize(0);
+			return batchRows;
+		}
+		int max = 0;
+		for (int j = 0; j < numColumns; j++) {
+			for (int i = 0; i < batchRows->size(); i++) {
+				if (results[j].StrLen_or_Ind[i] != SQL_NULL_DATA) {
+					char * batchRow = results[j].TargetValuePtr + (i * BUFFER_LENGTH);
+					(*batchRows)[i].push_back(string(batchRow, batchRow + results[j].StrLen_or_Ind[i]));
+					if (i > max) max = i;
+					results[j].StrLen_or_Ind[i] = SQL_NULL_DATA;
+				}
+				else
+					(*batchRows)[i].push_back("");
+			}
+		}
+		batchRows->resize(max + 1);
+		return max+1 == size;
+	}
+
 
 	string ResultSet::getColumnValueChar(unsigned int index){
 		SQLCHAR targetValuePtr[BUFFER_LENGTH];
@@ -178,6 +202,10 @@ using namespace std;
 	}
 
 	ResultSet::~ResultSet(){
+		for (int i = 0; i < results.size(); i++) {
+			free(results[i].TargetValuePtr);
+			free(results[i].StrLen_or_Ind);
+		}
 		SQLFreeStmt(handleStatement->getHandle(), SQL_CLOSE);
 	}
 //}

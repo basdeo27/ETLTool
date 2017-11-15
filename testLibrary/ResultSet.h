@@ -110,6 +110,8 @@ static const int BUFFER_LENGTH = 1024;
 
 		vector<vector<string>> getNRows(int n);
 
+		bool getNRows(vector<vector<string>>* batchRows);
+
 		bool closeCursor();
 
 		~ResultSet();

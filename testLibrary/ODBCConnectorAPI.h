@@ -13,6 +13,8 @@
 #include <string>
 #include <set>
 #include <unordered_map>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 
@@ -88,8 +90,12 @@ struct WriteParameters {
 };
 
 struct MutexStruct {
-	bool stillReading, stillWriting, areMoreRows, hasError;
+	bool areMoreRows, hasError;
 	vector<vector<string>> *writeBuff, *readBuff;
+	std::mutex lock;
+
+	std::condition_variable not_full;
+	std::condition_variable not_empty;
 };
 
 Query* createCopyCreateQuery(Connection * targetConnectionPointer, string oldTableName, vector<Column> columns, vector<string> primaryKey, int targetCatalogIndex, int targetSchemaIndex);

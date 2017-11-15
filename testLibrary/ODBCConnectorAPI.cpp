@@ -14,9 +14,6 @@
 #include <memory>
 #include <thread>
 
-#include <mutex>
-#include <condition_variable>
-
 using namespace std;
 
 // Establishes connection to the datasource
@@ -314,59 +311,34 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 		return columns;
 	}
 
-	/*
 	bool insertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
 		Query insertQuery = Query(INSERT, targetTable, " VALUES ", targetConnectionPointer->getIdentifierQuote());
 		insertQuery.addColumnsToInsertQuery(columns);
 		bool moreRows = true;
 		bool hasError = false;
 		while (moreRows){
-			vector<vector<string>> currentRows;
-			for (int i = 0; i < rowsAtATime; i++){
-				moreRows = resultSet->getNextRow();
-				if (moreRows) {
-					currentRows.push_back(resultSet->getCurrentRow());
-				}
-			}
-			if (currentRows.size() > 0) {
-				insertQuery.addListOfValuesToInsertQuery(currentRows, columnIndexes);
+			vector<vector<string>>* currentRows = new vector<vector<string>>(rowsAtATime);
+			moreRows = resultSet->getNRows(currentRows);
+			if (currentRows->size() > 0) {
+				insertQuery.addListOfValuesToInsertQuery2(currentRows, columnIndexes);
 				Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());
 				bool currentError = statement.executeUpdate();
 				if (currentError)
 					hasError = true;
 			}
-		}
-		return hasError;
-	}*/
-
-	bool insertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
-		Query insertQuery = Query(INSERT, targetTable, " VALUES ", targetConnectionPointer->getIdentifierQuote());
-		insertQuery.addColumnsToInsertQuery(columns);
-		bool moreRows = true;
-		bool hasError = false;
-		while (moreRows){
-			vector<vector<string>> currentRows = resultSet->getNRows(rowsAtATime);
-			moreRows = currentRows.size() == rowsAtATime;
-			if (currentRows.size() > 0) {
-				insertQuery.addListOfValuesToInsertQuery(currentRows, columnIndexes);
-				Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());
-				bool currentError = statement.executeUpdate();
-				if (currentError)
-					hasError = true;
-			}
+			delete currentRows;
 		}
 		return hasError;
 	}
 
 	bool threadedInsertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
 		bool hasError = false;
-		MutexStruct* shared = new MutexStruct{ true, // stillReading 
-			false, // stillWriting
-			true, // areMoreRows
-			false,
-			new vector<vector<string>>(), // writebuff
-			new vector<vector<string>>() // readbuff
-		};
+		MutexStruct* shared = new MutexStruct; 
+		shared->areMoreRows = true;
+		shared->hasError = false;
+		shared->readBuff = new vector<vector<string>>();
+		shared->writeBuff = new vector<vector<string>>();
+
 		thread read(readThread, rowsAtATime, resultSet, shared);
 		thread write(writeThread, targetConnectionPointer, targetTable, rowsAtATime, columns, columnIndexes, shared);
 
@@ -416,22 +388,18 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 		// Set a flag when no more rows
 		//bool moreRows = true;
 		int i;
+		
 		while (shared->areMoreRows){
-			shared->readBuff->clear();
-			//for (i = 0; i < 1024; i++){
-			for (i = 0; i < rowsAtATime; i++){
-				shared->stillReading = true;
-				shared->areMoreRows = resultSet->getNextRow();
-				if (shared->areMoreRows)
-					shared->readBuff->push_back(resultSet->getCurrentRow());
-				else
-					break;
-			}
-			while (shared->stillWriting){
+			delete shared->readBuff;
+			shared->readBuff = new vector<vector<string>>(rowsAtATime);
+			shared->areMoreRows  = resultSet->getNRows(shared->readBuff);
 
-			}
+			unique_lock<mutex> l(shared->lock);
+			shared->not_full.wait(l, [shared]{return shared->writeBuff->size() == 0; });
 			swap(&shared->readBuff, &shared->writeBuff);
-			shared->stillReading = false;
+
+			l.unlock();
+			shared->not_empty.notify_one();
 		}
 	}
 
@@ -440,17 +408,17 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 		Query insertQuery = Query(INSERT, targetTable, " VALUES ", targetConnectionPointer->getIdentifierQuote());
 		insertQuery.addColumnsToInsertQuery(columns);
 		while (shared->areMoreRows || shared->writeBuff->size() > 0) {
-			if (shared->writeBuff->size() > 0) {
-				shared->stillWriting = true;
-				insertQuery.addListOfValuesToInsertQuery2(shared->writeBuff, columnIndexes);
-				shared->writeBuff->clear();
-				Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());
-				bool currentError = statement.executeUpdate();
-				if (currentError)
-					shared->hasError = true;
-				shared->stillWriting = false;
-			} while (shared->stillReading){
+			unique_lock<mutex> l(shared->lock);
+			shared->not_empty.wait(l, [shared]{ return shared->writeBuff->size() != 0; });
 
-			}
+			insertQuery.addListOfValuesToInsertQuery2(shared->writeBuff, columnIndexes);
+			shared->writeBuff->clear();
+			l.unlock();
+			shared->not_full.notify_one();
+
+			Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());
+			bool currentError = statement.executeUpdate();
+			if (currentError)
+				shared->hasError = true;
 		}
 	}
