@@ -26,9 +26,9 @@ static const string INSERT = "INSERT INTO ";
 
 		Query(string base, string tableName, string afterTableName, string identifierQuote);
 
-		void addListOfValuesToInsertQuery(vector<vector<string>> rows, set<int> columnIndexes);
+		//void addListOfValuesToInsertQuery(vector<vector<string>> rows, set<int> columnIndexes);
 
-		void addListOfValuesToInsertQuery2(vector<vector<string>>* rows, set<int> columnIndexes);
+		void addListOfValuesToInsertQuery(vector<vector<string>>* rows, set<int> columnIndexes);
 
 		void addColumnsToInsertQuery(vector<Column> columns);
 

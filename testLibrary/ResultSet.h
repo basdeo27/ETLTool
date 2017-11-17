@@ -19,6 +19,8 @@ static const int BUFFER_LENGTH = 1024;
 		// Returns
 		ResultSet(HandleStatement* handleStatement);
 
+		ResultSet(HandleStatement* handleStatement, vector<Column> columns);
+
 		string getOwner();
 
 		string getSimpleName();

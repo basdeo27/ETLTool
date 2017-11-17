@@ -1,20 +1,40 @@
-﻿Build started 11/15/2017 10:00:33 AM.
+﻿Build started 11/17/2017 10:15:09 AM.
      1>Project "C:\Users\dylanbasdeo\Documents\testLibrary\testLibrary\testLibrary.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D ODBCCONNECTORAPI_H /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ODBCConnectorAPI.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _LIB /D ODBCCONNECTORAPI_H /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Connection.cpp DataColumnBinding.cpp Error.cpp HandleStatement.cpp ODBCConnectorAPI.cpp PreparedStatement.cpp Query.cpp ResultSet.cpp Statement.cpp Table.cpp
+         HandleStatement.cpp
+         Generating Code...
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\handlestatement.cpp(188): warning C4715: 'enableOk' : not all control paths return a value
+         Compiling...
+         Table.cpp
+         Statement.cpp
+         ResultSet.cpp
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\resultset.cpp(82): warning C4800: 'std::vector<std::vector<std::string,std::allocator<_Ty>>,std::allocator<std::vector<_Ty,std::allocator<_Ty>>>> *' : forcing value to bool 'true' or 'false' (performance warning)
+                 with
+                 [
+                     _Ty=std::string
+                 ]
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\resultset.cpp(86): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\resultset.cpp(135): warning C4018: '<' : signed/unsigned mismatch
+         Query.cpp
+         PreparedStatement.cpp
          ODBCConnectorAPI.cpp
-     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\odbcconnectorapi.cpp(391): warning C4101: 'i' : unreferenced local variable
-     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\odbcconnectorapi.cpp(58): warning C4715: 'RDBC_Connection_CopyTable' : not all control paths return a value
-     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\odbcconnectorapi.cpp(111): warning C4715: 'RDBC_Connection_InsertTable' : not all control paths return a value
+         Error.cpp
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\error.cpp(30): warning C4244: 'argument' : conversion from 'SQLINTEGER' to 'SQLSMALLINT', possible loss of data
+         DataColumnBinding.cpp
+         Connection.cpp
+         Generating Code...
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\connection.cpp(174): warning C4715: 'Connection::getTable' : not all control paths return a value
+     1>c:\users\dylanbasdeo\documents\testlibrary\testlibrary\odbcconnectorapi.cpp(95): warning C4715: 'RDBC_Connection_CopyTable' : not all control paths return a value
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\dylanbasdeo\Documents\testLibrary\Debug\testLibrary.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\dylanbasdeo\Documents\testLibrary\Debug\testLibrary.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\dylanbasdeo\Documents\testLibrary\Debug\testLibrary.lib" /MACHINE:X86 /DLL Debug\testLibrary.res
          Debug\Column.obj
          Debug\Connection.obj
          Debug\ConnectStruct.obj
          Debug\Cursor.obj
+         Debug\DataColumnBinding.obj
          Debug\Driver.obj
          Debug\HandleStatement.obj
-         Debug\HiveDialog.obj
          Debug\ODBCConnectorAPI.obj
          Debug\PreparedStatement.obj
          Debug\Query.obj
@@ -22,9 +42,10 @@
          Debug\ResultSet.obj
          Debug\Statement.obj
          Debug\Table.obj
+            Creating library C:\Users\dylanbasdeo\Documents\testLibrary\Debug\testLibrary.lib and object C:\Users\dylanbasdeo\Documents\testLibrary\Debug\testLibrary.exp
          testLibrary.vcxproj -> C:\Users\dylanbasdeo\Documents\testLibrary\Debug\testLibrary.dll
      1>Done Building Project "C:\Users\dylanbasdeo\Documents\testLibrary\testLibrary\testLibrary.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:01.60
+Time Elapsed 00:00:08.07

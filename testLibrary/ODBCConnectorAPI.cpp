@@ -15,6 +15,50 @@
 #include <thread>
 
 using namespace std;
+/**
+Query* createCopyCreateQuery(Connection * targetConnectionPointer, string oldTableName, vector<Column> columns, vector<string> primaryKey, int targetCatalogIndex, int targetSchemaIndex) {
+	targetConnectionPointer->readTablesForCatalogAndSchema(targetCatalogIndex, targetSchemaIndex);
+	string catalogName = targetConnectionPointer->getNameOfObject(targetCatalogIndex, CATALOG);
+	string schemaName = targetConnectionPointer->getNameOfObject(targetSchemaIndex, SCHEMA);
+	int tableNum = 0;
+	string copyTableName = oldTableName + "copy" + to_string(tableNum);
+	while (targetConnectionPointer->containsTable(copyTableName)) {
+		tableNum++;
+		copyTableName = oldTableName + "copy" + to_string(tableNum);
+	}
+	Query* createQuery = new Query(CREATE_TABLE, "", "", targetConnectionPointer->getIdentifierQuote());
+	createQuery->addFullTableNameToQuery(catalogName, schemaName, copyTableName);
+	if (!containsPrimaryKey(primaryKey, columns))
+		primaryKey.clear();
+	createQuery->addColumnsToCreateQuery(columns, primaryKey);
+	return createQuery;
+}
+
+int RDBC_Connection_AddTable(HANDLE targetConnection, TABLEPTR* table, int targetCatalogIndex, int targetSchemaIndex, char* tableName)
+{
+	if (isValidHandle(targetConnection)){
+		Connection * targetConnectionPointer = (Connection *)targetConnection;
+		if (targetConnectionPointer->isConnected()) {
+
+			targetConnectionPointer->readTablesForCatalogAndSchema(targetCatalogIndex, targetSchemaIndex);
+			string catalogName = targetConnectionPointer->getNameOfObject(targetCatalogIndex, CATALOG);
+			string schemaName = targetConnectionPointer->getNameOfObject(targetSchemaIndex, SCHEMA);
+
+			int tableNum = 0;
+			string copyTableName = string(tableName) + "copy" + to_string(tableNum);
+			while (targetConnectionPointer->containsTable(copyTableName)) {
+				tableNum++;
+				copyTableName = string(tableName) + "copy" + to_string(tableNum);
+			}
+			Query* createQuery = new Query(CREATE_TABLE, "", "", targetConnectionPointer->getIdentifierQuote());
+			Statement statement = Statement(targetConnectionPointer->getHandleStatement(), createQuery->getQueryString());
+			statement.executeUpdate();
+
+			delete createQuery;
+			return true;
+		}
+	}
+}*/
 
 // Establishes connection to the datasource
 int RDBC_Connection_Connect(HANDLE connection)
@@ -43,14 +87,7 @@ int RDBC_Connection_CopyTable(HANDLE sourceConnection, HANDLE targetConnection, 
 
 			sourceConnectionPointer->setBulkFetch(rowsAtATime);
 			bool hasError = selectStarAndInsertIntoTarget(sourceConnectionPointer, targetConnectionPointer, table.getName(), createQuery->getTableName(), rowsAtATime, columns, columnIndexes);
-			/**
-			Query selectQuery = Query(SELECT_STAR, table.getName(), "");
-			statement = Statement(sourceConnectionPointer->getHandleStatement(), selectQuery.getQueryString());
-			ResultSet* resultSet = statement.execute();
 
-			// TODO append columns to after table name and not the table name // IMPORTANT IMPORTANT
-			insertResultSetIntoTargetTableNRowsAtATime(targetConnectionPointer, createQuery->getTableName(), resultSet, rowsAtATime, columns, columnIndexes);
-			delete resultSet;*/
 			delete createQuery;
 			return hasError ? 1 : 0;
 		}
@@ -98,16 +135,10 @@ int RDBC_Connection_InsertTable(HANDLE sourceConnection, HANDLE targetConnection
 			}
 
 			bool hasError = selectStarAndInsertIntoTarget(sourceConnectionPointer, targetConnectionPointer, sourceTable.getName(), targetTable.getName(), rowsAtATime, columns, columnIndexes);
-			/**
-			Query selectQuery = Query(SELECT_STAR, sourceTable.getName(), "");
-			Statement statement = Statement(sourceConnectionPointer->getHandleStatement(), selectQuery.getQueryString());
-			ResultSet* resultSet = statement.execute();
-
-			insertResultSetIntoTargetTableNRowsAtATime(targetConnectionPointer, targetTable.getName(), resultSet, rowsAtATime, columns, columnIndexes);
-			delete resultSet;*/
 			return hasError ? 1 : 0;
 		}
 	}
+	return false;
 }
 
 // Returns a new object of a datasource connection
@@ -320,7 +351,7 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 			vector<vector<string>>* currentRows = new vector<vector<string>>(rowsAtATime);
 			moreRows = resultSet->getNRows(currentRows);
 			if (currentRows->size() > 0) {
-				insertQuery.addListOfValuesToInsertQuery2(currentRows, columnIndexes);
+				insertQuery.addListOfValuesToInsertQuery(currentRows, columnIndexes);
 				Statement statement = Statement(targetConnectionPointer->getHandleStatement(), insertQuery.getInsertQueryString());
 				bool currentError = statement.executeUpdate();
 				if (currentError)
@@ -328,26 +359,6 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 			}
 			delete currentRows;
 		}
-		return hasError;
-	}
-
-	bool threadedInsertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
-		bool hasError = false;
-		MutexStruct* shared = new MutexStruct; 
-		shared->areMoreRows = true;
-		shared->hasError = false;
-		shared->readBuff = new vector<vector<string>>();
-		shared->writeBuff = new vector<vector<string>>();
-
-		thread read(readThread, rowsAtATime, resultSet, shared);
-		thread write(writeThread, targetConnectionPointer, targetTable, rowsAtATime, columns, columnIndexes, shared);
-
-		read.join();
-		write.join();
-		hasError = shared->hasError;
-		delete shared->readBuff;
-		delete shared->writeBuff;
-		delete shared;
 		return hasError;
 	}
 
@@ -374,6 +385,26 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 		return hasError;
 	}
 
+	bool threadedInsertResultSetIntoTargetTableNRowsAtATime(Connection * targetConnectionPointer, string targetTable, ResultSet* resultSet, int rowsAtATime, vector<Column> columns, set<int> columnIndexes){
+		bool hasError = false;
+		MutexStruct* shared = new MutexStruct;
+		shared->areMoreRows = true;
+		shared->hasError = false;
+		shared->readBuff = new vector<vector<string>>();
+		shared->writeBuff = new vector<vector<string>>();
+
+		thread read(readThread, rowsAtATime, resultSet, shared);
+		thread write(writeThread, targetConnectionPointer, targetTable, rowsAtATime, columns, columnIndexes, shared);
+
+		read.join();
+		write.join();
+		hasError = shared->hasError;
+		delete shared->readBuff;
+		delete shared->writeBuff;
+		delete shared;
+		return hasError;
+	}
+
 	bool swap(vector<vector<string>>** readRows, vector<vector<string>>** writeRows) {
 		// TODO: LOCK
 		vector<vector<string>>* tempRows = *readRows;
@@ -384,11 +415,7 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 
 	void readThread(int rowsAtATime, ResultSet* resultSet, MutexStruct* shared)
 	{
-		//// Get rows /////////
-		// Set a flag when no more rows
-		//bool moreRows = true;
-		int i;
-		
+		//// Get rows /////////		
 		while (shared->areMoreRows){
 			delete shared->readBuff;
 			shared->readBuff = new vector<vector<string>>(rowsAtATime);
@@ -411,7 +438,7 @@ bool RDBC_Connection_SetBulkFetch(HANDLE connection, int bulkFetch) {
 			unique_lock<mutex> l(shared->lock);
 			shared->not_empty.wait(l, [shared]{ return shared->writeBuff->size() != 0; });
 
-			insertQuery.addListOfValuesToInsertQuery2(shared->writeBuff, columnIndexes);
+			insertQuery.addListOfValuesToInsertQuery(shared->writeBuff, columnIndexes);
 			shared->writeBuff->clear();
 			l.unlock();
 			shared->not_full.notify_one();

@@ -32,8 +32,8 @@
 		returnCode = handleStatement->allocateEnvironmentHandle();
 		returnCode = handleStatement->setEnvironmentVariable(attr_odbc_version, odbcVersion);
 		returnCode = handleStatement->allocateConnectionHandle();
-		returnCode = handleStatement->driverConnect();
-		//returnCode = handleStatement->hiveDriverConnect();
+		//returnCode = handleStatement->driverConnect();
+		returnCode = handleStatement->hiveDriverConnect();
 		handleStatement->printErrorIfExists(returnCode);
 		returnCode = handleStatement->allocateStatementHandle();
 		returnCode = setIdentifierQuote();

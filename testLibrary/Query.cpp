@@ -29,7 +29,7 @@ using namespace std;
 		resetQueryString();
 	}
 
-	void Query::addListOfValuesToInsertQuery2(vector<vector<string>>* rows, set<int> columnIndexes) {
+	void Query::addListOfValuesToInsertQuery(vector<vector<string>>* rows, set<int> columnIndexes) {
 		values = "";
 		for (unsigned int i = 0; i < rows->size() - 1; i++){
 			addValuesToInsertQuery((*rows)[i], columnIndexes, true);
@@ -37,7 +37,7 @@ using namespace std;
 		}
 		addValuesToInsertQuery((*rows)[rows->size() - 1], columnIndexes, true);
 	}
-
+	/**
 	void Query::addListOfValuesToInsertQuery(vector<vector<string>> rows, set<int> columnIndexes) {
 		values = "";
 		for (unsigned int i = 0; i < rows.size() - 1; i++){
@@ -45,7 +45,7 @@ using namespace std;
 			values.append(", ");
 		}
 		addValuesToInsertQuery(rows[rows.size() - 1], columnIndexes, true);
-	}
+	}*/
 
 	void Query::addColumnsToInsertQuery(vector<Column> columns) {
 		string columnString = " (";

@@ -12,9 +12,7 @@
 
 using namespace std;
 
-//namespace ODBCConnectorAPI
-//{
-	class HandleStatement {
+class HandleStatement {
 	public:
 		HandleStatement();
 
@@ -50,6 +48,8 @@ using namespace std;
 
 		~HandleStatement();
 
+		//BOOL DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam);
+
 		void makeConnection(HWND hWndDlg);
 	
 	private:
@@ -59,7 +59,18 @@ using namespace std;
 
 		//BOOL CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam);
 
-	};
-//}
+};
+
+void clearWindows(HWND hWndDlg);
+
+BOOL enableWindows(HWND hWndDlg, int realm, int fqdn, int serviceName, int httpPath, int userName, int password);
+
+BOOL getAllDialogsText(HWND hWndDlg);
+
+BOOL enableOk(HWND hWndDlg);
+
+BOOL CALLBACK DlgProc(HWND hWndDlg, UINT Msg, WPARAM wParam, LPARAM lParam);
+
+wstring getConnectionString();
 
 #endif

@@ -20,6 +20,8 @@ using namespace std;
 
 typedef void * HANDLE;
 
+typedef void * TABLEPTR;
+
 enum OdbcObject { CATALOG = 0, SCHEMA = 1, TABLE = 2, TABLETTYPE = 3 };
 
 // Establishes connection to the datasource

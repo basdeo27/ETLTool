@@ -32,22 +32,6 @@ using namespace std;
 		return numColumns;
 	}
 
-	/*
-	bool ResultSet::getNextRow(){
-		int retCode = SQLFetch(handleStatement->getHandle());
-		if (retCode == SQL_NO_DATA)
-			return false;
-		//handleStatement->printErrorIfExists(retCode);
-		currentRow.clear();
-		for (int i = 0; i < numColumns; i++){
-			if (results[i].StrLen_or_Ind != SQL_NULL_DATA)
-				currentRow.push_back(results[i].TargetValuePtr.get());
-			else
-				currentRow.push_back("");
-		}
-		return true;
-	}*/
-
 	bool ResultSet::getNextRow(){
 		int retCode = SQLFetch(handleStatement->getHandle());
 		if (retCode == SQL_NO_DATA)
@@ -63,63 +47,9 @@ using namespace std;
 	}
 	
 
-	/**
-	bool ResultSet::getNextRow(){
-		int retCode = SQLFetch(handleStatement->getHandle());
-		if (retCode == SQL_NO_DATA)
-			return false;
-		//handleStatement->printErrorIfExists(retCode);
-		currentRow.clear();
-		for (int i = 0; i < numColumns; i++) {
-			//char * batchRow = results[i].TargetValuePtr.get();
-			char * batchRow = results[i].TargetValuePtr;
-			//if (results[i].StrLen_or_Ind.get()[currentPoint] != SQL_NULL_DATA){
-			if (results[i].StrLen_or_Ind[currentPoint] != SQL_NULL_DATA){
-				int targetValueStart = currentPoint*results[i].BufferLength;
-				currentRow.push_back(string(&batchRow[targetValueStart], &batchRow[targetValueStart + results[i].StrLen_or_Ind[currentPoint]]));
-			}
-			else
-				currentRow.push_back("");
-		}
-		currentPoint = (currentPoint + 1) % handleStatement->getBulkFetch();
-		return true;
-	}*/
-
 	vector<string> ResultSet::getCurrentRow(){
 		return currentRow;
 	}
-	/**
-	vector<vector<string>> ResultSet::getNRows(int n){
-		int retCode;
-		vector<vector<string>> rows;
-		for (retCode = SQLFetch(handleStatement->getHandle()); MySQLSuccess(retCode); retCode = SQLFetch(handleStatement->getHandle())){
-			handleStatement->printErrorIfExists(retCode);
-			currentRow.clear();
-			for (int i = 0; i < numColumns; i++){
-				currentRow.push_back((results[i].TargetValuePtr.get()));
-			}
-			rows.push_back(currentRow);
-		}
-		return rows;
-	}*/
-
-	/**
-	vector<vector<string>> ResultSet::getNRows(int n){
-		int retCode;
-		vector<vector<string>> rows;
-		for (retCode = SQLFetch(handleStatement->getHandle()); MySQLSuccess(retCode); retCode = SQLFetch(handleStatement->getHandle())){
-			handleStatement->printErrorIfExists(retCode);
-			currentRow.clear();
-			for (int i = 0; i < handleStatement->getBulkFetch(); i++){
-				for (int j = 0; j < numColumns; j++) {
-					char * batchRow = results[j].TargetValuePtr;
-					currentRow.push_back(string(&batchRow[i*results[j].BufferLength], &batchRow[(i*results[j].BufferLength) + results[j].StrLen_or_Ind[i]]));
-				}
-			}
-			rows.push_back(currentRow);
-		}
-		return rows;
-	}*/
 	
 	vector<vector<string>> ResultSet::getNRows(int n){
 		int retCode = SQLFetch(handleStatement->getHandle());

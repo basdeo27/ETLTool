@@ -80,10 +80,10 @@
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConnectStruct.h" />
     <ClInclude Include="Cursor.h" />
+    <ClInclude Include="DataColumnBinding.h" />
     <ClInclude Include="Driver.h" />
     <ClInclude Include="Error.h" />
     <ClInclude Include="HandleStatement.h" />
-    <ClInclude Include="HiveDialog.h" />
     <ClInclude Include="PreparedStatement.h" />
     <ClInclude Include="Query.h" />
     <ClInclude Include="resource.h" />
@@ -98,9 +98,9 @@
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="ConnectStruct.cpp" />
     <ClCompile Include="Cursor.cpp" />
+    <ClCompile Include="DataColumnBinding.cpp" />
     <ClCompile Include="Driver.cpp" />
     <ClCompile Include="HandleStatement.cpp" />
-    <ClCompile Include="HiveDialog.cpp" />
     <ClCompile Include="ODBCConnectorAPI.cpp" />
     <ClCompile Include="PreparedStatement.cpp" />
     <ClCompile Include="Query.cpp" />
